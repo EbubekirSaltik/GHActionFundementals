@@ -1,0 +1,57 @@
+name: Artifact Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  job1:
+    name: Add 5 and 7
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          expr 5 + 7 > result.txt
+      - name: Upload math result for job 1
+        uses: actions/upload-artifact@v3
+        with:
+          name: first result
+          path: math-result.txt
+  
+  job2:
+    name: Multiple by 9
+    runs-on: ubuntu-latest
+    needs: job1
+    steps:
+      - name: Download math result from job 1
+        uses: actions/download-artifact@v3
+        with:
+          name: first result
+      - shell: bash
+        run: |
+          result=$(cat math-result.txt)
+          expr $result \* 9 > final-result.txt
+      - name: Upload final math result
+        uses: actions/upload-artifact@v3
+        with:
+          name: final result
+          path: final-result.txt
+  job3:
+    name: Show final result
+    runs-on: ubuntu-latest
+    needs: job2
+    steps:
+        - name: Download final math result from job 2
+          uses: actions/download-artifact@v3
+          with:
+            name: final result
+        - shell: bash
+          run: |
+            value=$(cat final-result.txt)
+            echo "The final result is $value"
+              
