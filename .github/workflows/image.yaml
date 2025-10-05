@@ -1,61 +1,54 @@
-name: Docker CI/CD
+name: Simple Docker Publish
 
-on: 
+on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 env:
-    IMAGE_NAME: my-app # Docker image adı
-    BUILD_DIR: dist # Build dosyalarının bulunduğu dizin
-    
+  IMAGE_NAME: hello-world-app
+
 jobs:
-  build-and-push:
+  build_and_push:
     runs-on: ubuntu-latest
+
     steps:
-      #Checkout the repository
+      # 1️⃣ Kodu checkout et
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      #Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
-      
-      #Install dependencies
-      - name: Install, build & test
-        id: build_step
+      # 2️⃣ Script'e chmod ver ve çalıştır
+      - name: Run script
+        id: run_script
         run: |
-          npm install
-          npm run build --if-present
-          npm test
-          echo "build_path=$PWD/${{ env.BUILD_DIR}}" >> $GITHUB_OUTPUT
-    # Step output olarak build klasörünü job içinde kullabilmek için ayarlıyoruz.
-    
-      #Archive build artifact
-      - name: Upload build artifact
+          chmod +x hello.sh
+          ./hello.sh
+          echo "message=Script executed successfully" >> $GITHUB_OUTPUT
+
+      # 3️⃣ Output değerini kullan
+      - name: Show message output
+        run: | 
+            echo "Output from previous step: ${{ steps.run_script.outputs.message }}"
+
+      # 4️⃣ Script'i artifact olarak yükle
+      - name: Upload script as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-output
-          path: ${{ steps.build_step.outputs.build_path }}
-          
-      # 5️⃣ Login to Docker Hub
-      - name: Docker Login
+          name: hello-script
+          path: hello.sh
+
+      # 5️⃣ Docker Hub'a login ol
+      - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 6️⃣ Build Docker image
+      # 6️⃣ Docker image build et
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
-          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest .
 
-      # 7️⃣ Push Docker image
-      - name: Push Docker image to Docker Hub
-        run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+      # 7️⃣ Docker image push et
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
