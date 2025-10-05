@@ -1,6 +1,6 @@
 name: First Workflow
 
-on:
+on: # burada workflow'un ne zaman tetikleneceğini belirtiyoruz.
     push:
         branches:
         - main
@@ -9,10 +9,10 @@ on:
         - main
     workflow_dispatch:
 
-jobs:
+jobs: # jobs kısmı oluşturulunca bize bir "runner" oluşturur yani bir sanal makine.
     deneme:
-        runs-on: ubuntu-latest
-        steps:
+        runs-on: ubuntu-latest # burada hangi işletim sistemini kullanacağımızı belirtiyoruz.
+        steps: # steps kısmı ise o sanal makine üzerinde ne yapacağımızı belirtiyor.
             - name: Checkout repository
               uses: actions/checkout@v5
             - name: Hello World
