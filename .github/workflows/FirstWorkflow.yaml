@@ -17,8 +17,9 @@ jobs: # jobs kısmı oluşturulunca bize bir "runner" oluşturur yani bir sanal 
         steps: # steps kısmı ise o sanal makine üzerinde ne yapacağımızı belirtiyor.
             - name: Checkout repository
               uses: actions/checkout@v5 # uses bir action kullanmak istediğimizde kullanılır. Yani bir uygulama kullanmak istediğimizde.
-            - name: Hello World
-              run: | # run'da ise o sanal makine üzerinde çalıştırmak istediğimiz komutları yazıyoruz.
-                echo Hello, world!
-                printenv
-                
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                username: ${{ secrets.DOCKERHUB_USERNAME }}
+                password: ${{ secrets.DOCKERHUB_TOKEN }}
+                    
