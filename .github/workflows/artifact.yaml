@@ -18,7 +18,7 @@ jobs:
         run: |
           expr 5 + 7 > result.txt
       - name: Upload math result for job 1
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: first result
           path: math-result.txt
@@ -37,7 +37,7 @@ jobs:
           result=$(cat math-result.txt)
           expr $result \* 9 > final-result.txt
       - name: Upload final math result
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: final result
           path: final-result.txt
