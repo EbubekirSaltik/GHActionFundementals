@@ -21,7 +21,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: first result
-          path: math-result.txt
+          path: result.txt
   
   job2:
     name: Multiple by 9
